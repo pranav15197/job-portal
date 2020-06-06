@@ -31,6 +31,21 @@ class Candidate(models.Model):
     def __str__(self):
         return "{} - {}".format(self.name, self.mobile)
 
+    def is_engaged(self):
+        status_engaged = [
+            STATUS_PENDING,
+            STATUS_ACCEPTED
+        ]
+        jobs = CandidateJobMap.objects.filter(
+            candidate=self,
+            status__in=status_engaged
+        ).all()
+        if len(jobs) == 0:
+            return "No"
+        else:
+            return "Yes"
+
+
 
 class CandidateJobMap(models.Model):
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
@@ -39,5 +54,17 @@ class CandidateJobMap(models.Model):
         max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
     feedback = models.TextField(blank=True, null=True)
 
+    def age(self):
+        return self.candidate.age
+
+    def gender(self):
+        return self.candidate.gender
+
+    def city(self):
+        return self.candidate.city
+
     def __str__(self):
         return "{} - {}".format(self.candidate.name, self.job.position_name)
+
+    class Meta:
+        verbose_name_plural = "Review Candidates"
